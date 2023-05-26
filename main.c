@@ -1,48 +1,58 @@
 #include "shell.h"
 
+/**
+ * main - The main shell code
+ * @argc: Number of arguments passed
+ * @argv: Program arguments to be parsed
+ *
+ * Applies the functions in utils and helpers,
+ * implements EOF,
+ * Prints error on failure.
+ *
+ * Return: 0 on success
+ */
 int main(int argc __attribute__((unused)), char **argv)
 {
-	char **cmds = NULL;
+	char **commands = NULL;
 	char *line = NULL;
-	char *shell_ = argv[0];
+	char *shell_name = argv[0];
 	int status = 0;
-	size_t n = 0;
 
-	signal(SIGINT, ctrlc_handler);
+	signal(SIGINT, ctrl_c_handler);
 
 	while (1)
 	{
-		nonint();
-		print(" ($) ", STDOUT_FILENO);
+		char **current_command = NULL;
+		int i, type_command = 0;
+		size_t n = 0;
 
+		non_interactive();
+		print(" ($) ", STDOUT_FILENO);
 		if (getline(&line, &n, stdin) == -1)
 		{
 			free(line);
 			exit(status);
 		}
+		remove_newline(line);
+		remove_comment(line);
+		commands = tokenizer(line, ";");
 
-		rmnewline(line);
-		rmcomment(line);
-		cmds = tokenize(line, ";");
-
-		for (int a = 0; cmds[a] != NULL; a++)
+		for (i = 0; commands[i] != NULL; i++)
 		{
-			char **current_command = tokenize(cmds[a], " ");
-
+			current_command = tokenizer(commands[i], " ");
 			if (current_command[0] == NULL)
 			{
 				free(current_command);
 				break;
 			}
+			type_command = parse_command(current_command[0]);
 
-			int type_cmd = parse_command(current_command[0]);
-
-init_command(current_command, type_cmd);
+			initializer(current_command, type_command);
 			free(current_command);
 		}
-
-		free_tokens(cmds);
+		free(commands);
 	}
+
 	free(line);
-	return (status);
+	return status;
 }
