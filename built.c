@@ -1,61 +1,60 @@
 #include "shell.h"
 
 /**
- *envi -outputs present envi
- *tokencmd__attr__((unused)): the token command attribute
+ * Print the current environment.
  *
- *Return: void
+ * @param tokenized_command Command entered.
  */
-
-void envi(char **tokencmd__attr__((unused)))
+void env(char **tokenized_command __attribute__((unused)))
 {
-	int a;
+    int i;
 
-	for (a = 0; environ[a] != NULL; a++)
-	{
-		print(environ[a], STDOUT_FILENO);
-		print("\n", STDOUT_FILENO);
-	}
+    for (i = 0; environ[i] != NULL; i++)
+    {
+        print(environ[i], STDOUT_FILENO);
+        print("\n", STDOUT_FILENO);
+    }
 }
 
 /**
- * exit - exits the shell
- * @tokencmd: the token command entered
+ * Exit the shell.
  *
- * Return: void
+ * @param tokenized_command Command entered.
  */
-void exit(char **tokencmd)
+void quit(char **tokenized_command)
 {
-	int token_num = 0, arg;
+    int num_token = 0, arg;
 
-	for (; token_num[token_num] != NULL; token_num++)
-		;
-	if (token_num == 1)
-	{
-		free(tokencmd);
-		free(line);
-		free(cmds);
-		exit(status);
-	}
-	else if (token_num == 2)
-	{
-		arg = atoi(tokencmd[1]);
-		if (arg == -1)
-	{
-		print(shell_name, STDERR_FILENO);
-		print(": 1: exit: Illegal number: ", STDERR_FILENO);
-		print(tokencmd[1], STDERR_FILENO);
-		print("\n", STDERR_FILENO);
-		status = 2;
-	}
-	else
-	{
-		free(line);
-		free(tokencmd);
-		free(cmds);
-		exit(arg);
-	}
-	}
-	else
-	print("$: exit doesn't take more than one argument\n", STDERR_FILENO);
+    for (; tokenized_command[num_token] != NULL; num_token++)
+        ;
+    if (num_token == 1)
+    {
+        free(tokenized_command);
+        free(line);
+        free(commands);
+        exit(status);
+    }
+    else if (num_token == 2)
+    {
+        arg = _atoi(tokenized_command[1]);
+        if (arg == -1)
+        {
+            print(shell_name, STDERR_FILENO);
+            print(": 1: exit: Illegal number: ", STDERR_FILENO);
+            print(tokenized_command[1], STDERR_FILENO);
+            print("\n", STDERR_FILENO);
+            status = 2;
+        }
+        else
+        {
+            free(line);
+            free(tokenized_command);
+            free(commands);
+            exit(arg);
+        }
+    }
+    else
+    {
+        print("$: exit doesn't take more than one argument\n", STDERR_FILENO);
+    }
 }
