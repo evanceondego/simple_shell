@@ -19,15 +19,15 @@
 #define min(x, y) (((x) < (y)) ? (x) : (y))
 
 /**
- * Struct map - maps a command name to a function
+ * struct map - maps a command name to a function
  *
  * @command_name: Name of the command
  * @func: The function that executes the command
  */
 typedef struct map
 {
-    char *command_name;
-    void (*func)(char **command);
+char *command_name;
+void (*func)(char **command);
 } function_map;
 
 extern char **environ;

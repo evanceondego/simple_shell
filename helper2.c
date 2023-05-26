@@ -47,7 +47,7 @@ char *_strcat(char *destination, char *source)
  * @str1: string to be searched
  * @str2: string to be used
  *
- * Return: number of bytes in the initial segment of str1 
+ * Return: number of bytes in the initial segment of str1
  */
 int _strspn(char *str1, char *str2)
 {
