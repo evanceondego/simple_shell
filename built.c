@@ -1,9 +1,10 @@
 #include "shell.h"
 
 /**
- * Print the current environment.
+ * env - Prints the current environment.
+ * @tokenized_command: Command entered.
  *
- * @param tokenized_command Command entered.
+ * Return: void
  */
 void env(char **tokenized_command __attribute__((unused)))
 {
@@ -17,16 +18,17 @@ void env(char **tokenized_command __attribute__((unused)))
 }
 
 /**
- * Exit the shell.
+ * quit - Exits the shell.
+ * @tokenized_command: Command entered.
  *
- * @param tokenized_command Command entered.
+ * Return: void
  */
 void quit(char **tokenized_command)
 {
 	int num_token = 0, arg;
 
 	for (; tokenized_command[num_token] != NULL; num_token++)
-	;
+		;
 	if (num_token == 1)
 	{
 		free(tokenized_command);
@@ -37,15 +39,15 @@ void quit(char **tokenized_command)
 	else if (num_token == 2)
 	{
 		arg = _atoi(tokenized_command[1]);
-	if (arg == -1)
-	{
-		print(shell_name, STDERR_FILENO);
-		print(": 1: exit: Illegal number: ", STDERR_FILENO);
-		print(tokenized_command[1], STDERR_FILENO);
-		print("\n", STDERR_FILENO);
-		status = 2;
-	}
-	else
+		if (arg == -1)
+		{
+			print(shell_name, STDERR_FILENO);
+			print(": 1: exit: Illegal number: ", STDERR_FILENO);
+			print(tokenized_command[1], STDERR_FILENO);
+			print("\n", STDERR_FILENO);
+			status = 2;
+		}
+		else
 		{
 			free(line);
 			free(tokenized_command);
@@ -54,7 +56,6 @@ void quit(char **tokenized_command)
 		}
 	}
 	else
-	{
 		print("$: exit doesn't take more than one argument\n", STDERR_FILENO);
-	}
+}
 }
