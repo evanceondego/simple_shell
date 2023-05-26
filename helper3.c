@@ -1,17 +1,16 @@
 #include "shell.h"
 
-
 /**
- *strtokr - creates a token for a string
- *@string: string to be token
- *@dlim: delimiter to be used to tokenize the string
- *@save_ptr: pointer to be used to keep track of the next token
+ * _strtok_r - tokenizes a string
+ * @string: string to be tokenized
+ * @delim: delimiter to be used to tokenize the string
+ * @save_ptr: pointer to be used to keep track of the next token
  *
- *Return: The next available token
+ * Return: The next available token
  */
-char *strtokr(char *string, char *dlim, char **save_ptr)
+char *_strtok_r(char *string, char *delim, char **save_ptr)
 {
-	char *end;
+	char *finish;
 
 	if (string == NULL)
 		string = *save_ptr;
@@ -29,112 +28,107 @@ char *strtokr(char *string, char *dlim, char **save_ptr)
 		return (NULL);
 	}
 
-	end = string + strcspn(string, dlim);
-	if (*end == '\0')
+	finish = string + _strcspn(string, delim);
+	if (*finish == '\0')
 	{
-		*save_ptr = end;
+		*save_ptr = finish;
 		return (string);
 	}
 
-	*end = '\0';
-	*save_ptr = end + 1;
+	*finish = '\0';
+	*save_ptr = finish + 1;
 	return (string);
 }
 
 /**
- * atoi - changes a string to an integer
- * @s_s: the string to be changed
+ * _atoi - changes a string to an integer
+ * @s: the string to be changed
  *
- * Return: converted b
+ * Return: the converted int
  */
-int atoi(char *s_s)
+int _atoi(char *s)
 {
-	unsigned int b = 0;
+	unsigned int n = 0;
 
 	do {
-		if (*s_s == '-')
+		if (*s == '-')
 			return (-1);
-		else if ((*s_s < '0' || *s_s > '9') && *s_s != '\0')
+		else if ((*s < '0' || *s > '9') && *s != '\0')
 			return (-1);
-		else if (*s_s >= '0'  && *s_s <= '9')
-			b = (b * 10) + (*s_s - '0');
-		else if (b > 0)
+		else if (*s >= '0' && *s <= '9')
+			n = (n * 10) + (*s - '0');
+		else if (n > 0)
 			break;
-	} while (*s_s++);
-	return (b);
+	} while (*s++);
+
+	return (n);
 }
 
 /**
- * realloc - reallocates a memory
- * @ptr: pointer to the memory previously allocation
- * @_size1: size of ptr
- * @_size2: size of the new allocated memory
+ * _realloc - reallocates a memory block
+ * @ptr: pointer to the memory previously allocated with a call to malloc
+ * @old_size: size of ptr
+ * @new_size: size of the new memory to be allocated
  *
- * Return: pointer to the address
+ * Return: pointer to the address of the new memory block
  */
-void *realloc(void *ptr, unsigned int _size1, unsigned int _size2)
+void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
 {
-	void *_block;
-	unsigned int a;
+	void *temp_block;
+	unsigned int i;
 
 	if (ptr == NULL)
 	{
-		_block = malloc(_size2);
-		return (_block);
+		temp_block = malloc(new_size);
+		return (temp_block);
 	}
-	else if (_size2 == _size1)
+	else if (new_size == old_size)
 		return (ptr);
-	else if (_size2 == 0 && ptr != NULL)
+	else if (new_size == 0 && ptr != NULL)
 	{
 		free(ptr);
 		return (NULL);
 	}
 	else
 	{
-		_block = malloc(_size2);
-		if (_block != NULL)
+		temp_block = malloc(new_size);
+		if (temp_block != NULL)
 		{
-			for (a = 0; a < min(_size1, _size2); a++)
-				*((char *)_block + a) = *((char *)ptr + a);
+			for (i = 0; i < (old_size < new_size ? old_size : new_size); i++)
+				*((char *)temp_block + i) = *((char *)ptr + i);
 			free(ptr);
-			return (_block);
+			return (temp_block);
 		}
 		else
 			return (NULL);
-
 	}
 }
 
 /**
- * ctrlc_handler - handles the signal raised by CTRL-C
- * @sig_num: the signal number
+ * ctrl_c_handler - handles the signal raised by CTRL-C
+ * @signum: signal number
  *
  * Return: void
  */
-void ctrlc_handler(int sig_num)
+void ctrl_c_handler(int signum)
 {
-	if (sig_num == SIG_INT)
+	if (signum == SIGINT)
 		print("\n($) ", STDIN_FILENO);
 }
 
 /**
- * rmcomment - removes everything after a char
+ * remove_comment - removes/ignores everything after a '#' char
  * @input: input to be used
  *
  * Return: void
  */
-void rmcomment(char *input)
+void remove_comment(char *input)
 {
-	int a = 0;
+	int i = 0;
 
-	if (input[a] == '#')
-		input[a] = '\0';
-	while (input[a] != '\0')
+	if (input[i] == '#')
+		input[i] = '\0';
+	while (input[i] != '\0')
 	{
-		if (input[a] == '#' && input[a - 1] == ' ')
-			break;
-		a++;
-	}
-	input[a] = '\0';
-}
+		if (input[i] == '#' && input[i - 1]
 

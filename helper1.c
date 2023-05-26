@@ -1,102 +1,108 @@
 #include "shell.h"
 
 /**
- * token_izer - creates the token
-*and input and store it in an array
- *@inputstring: input to be parsed
- *@dlim: delimiter to be used, needs to be one character string
+ * tokenizer - tokenizes input and stores it into an array
+ * @input_string: input to be parsed
+ * @delim: delimiter to be used, needs to be one character string
  *
- *Return: array of tokens
+ * Return: array of tokens
  */
-
-char **token_izer(char *inputstring, char *dlim)
+char **tokenizer(char *input_string, char *delim)
 {
-	int delim_num = 0;
+	int num_delim = 0;
 	char **av = NULL;
 	char *token = NULL;
 	char *save_ptr = NULL;
 
-	token = strtokr(inputstring, dlim, &save_ptr);
+	token = _strtok_r(input_string, delim, &save_ptr);
 
 	while (token != NULL)
 	{
-		av = realloc(av, sizeof(*av) * delim_num, sizeof(*av) * (delim_num + 1));
-		av[delim_num] = token;
-		token = strtokr(NULL, dlim, &save_ptr);
-		delim_num++;
+		av = _realloc(av, sizeof(*av) * num_delim, sizeof(*av) * (num_delim + 1));
+		av[num_delim] = token;
+		token = _strtok_r(NULL, delim, &save_ptr);
+		num_delim++;
 	}
 
-	av = realloc(av, sizeof(*av) * delim_num, sizeof(*av) * (delim_num + 1));
-	av[delim_num] = NULL;
+	av = _realloc(av, sizeof(*av) * num_delim, sizeof(*av) * (num_delim + 1));
+	av[num_delim] = NULL;
 
 	return (av);
 }
+
 /**
- *print - prints a string to stdout
- *@string: string to be printed
- *@stream: stream to print out to
+ * print - prints a string to stdout
+ * @string: string to be printed
+ * @stream: stream to print out to
  *
- *Return: void, NULL
+ * Return: void
  */
 void print(char *string, int stream)
 {
-	int a = 0;
+	int i = 0;
 
-	for (; string[a] != '\0'; a++)
-		write(stream, &string[a], 1);
-}
-
-/**
- *rmnewline - removes the new line from a string
- *@str: string to be used
- *
- *
- *Return: void
- */
-
-void rmnewline(char *str)
-{
-	int a = 0;
-
-	while (str[a] != '\0')
+	while (string[i] != '\0')
 	{
-		if (str[a] == '\n')
-		break;
-		a++;
+		write(stream, &string[i], 1);
+		i++;
 	}
-	str[a] = '\0';
 }
+
 /**
- *strcpy - copies a string to another buffer
- *@src: source to copy from
- *@des: destination to copy
-*
-* Return: void
+ * remove_newline - removes newline from a string
+ * @str: string to be modified
+ *
+ * Return: void
  */
-
-void strcpy(char *src, char *des)
+void remove_newline(char *str)
 {
-	int a = 0;
+	int i = 0;
 
-	for (; src[a] != '\0'; a++)
-		des[a] = src[a];
-	des[a] = '\0';
+	while (str[i] != '\0')
+	{
+		if (str[i] == '\n')
+		{
+			str[i] = '\0';
+			break;
+		}
+		i++;
+	}
 }
 
 /**
- *strlen - counts string length
- *@string: string to be counted
+ * _strcpy - copies a string to another buffer
+ * @source: source to copy from
+ * @dest: destination to copy to
+ *
+ * Return: void
+ */
+void _strcpy(char *source, char *dest)
+{
+	int i = 0;
+
+	while (source[i] != '\0')
+	{
+		dest[i] = source[i];
+		i++;
+	}
+	dest[i] = '\0';
+}
+
+/**
+ * _strlen - counts string length
+ * @string: string to be counted
  *
  * Return: length of the string
  */
-
-int strlen(char *string)
+int _strlen(char *string)
 {
 	int len = 0;
 
 	if (string == NULL)
 		return (len);
-	for (; string[len] != '\0'; len++)
-	;
+
+	while (string[len] != '\0')
+		len++;
+
 	return (len);
 }
