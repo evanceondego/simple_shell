@@ -1,6 +1,9 @@
 #ifndef SHELL_H
 #define SHELL_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
@@ -8,67 +11,66 @@
 #include <errno.h>
 #include <dirent.h>
 #include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-/*const*/
-#define EXTE_CMD_1
-#define INT_CMD_2
-#define PATH_CMD_3
-#define INV_CMD_1
+#define EXTERNAL_COMMAND 1
+#define INTERNAL_COMMAND 2
+#define PATH_COMMAND 3
+#define INVALID_COMMAND -1
 
 #define min(x, y) (((x) < (y)) ? (x) : (y))
 
 /**
- *mapping - a struct that maps a command name to a function
- *@cmdname - this is the name of the cmdname
- *@fun: the function that executes the command
+ * Struct map - maps a command name to a function
+ *
+ * @command_name: Name of the command
+ * @func: The function that executes the command
  */
-
-typedef mapping
+typedef struct map
 {
-	char *cmdname;
-	void (*fun)(char **cmd);
-} func_mapping;
+    char *command_name;
+    void (*func)(char **command);
+} function_map;
 
 extern char **environ;
 extern char *line;
-extern char **cmds;
-extern char *shellname;
+extern char **commands;
+extern char *shell_name;
 extern int status;
-/*helper1*/
+
+/* Helper1 */
 void print(char *, int);
-char **token_izer(char *, char *);
-void rmnewline(char *);
-int strlen(char *);
-void strcpy(char *, char *);
+char **tokenizer(char *, char *);
+void remove_newline(char *);
+int _strlen(char *);
+void _strcpy(char *, char *);
 
-/*helper2*/
-int strcmp(char *, char *);
-char *strcat(char *, char *);
-int strspn(char *, char *);
-int strcspn(char *, char *);
-char *strchr(char *, char);
+/* Helper2*/
+int _strcmp(char *, char *);
+char *_strcat(char *, char *);
+int _strspn(char *, char *);
+int _strcspn(char *, char *);
+char *_strchr(char *, char);
 
-/*helper3*/
-char *strtokr(char *, char *, char **);
-int atoi(char *);
-void *realloc(void *ptr, unsigned int oldsize, unsigned int newsize);
-void ctrlc_handle(int);
-void rmcomment(char *);
+/* helper3 */
+char *_strtok_r(char *, char *, char **);
+int _atoi(char *);
+void *_realloc(void *, unsigned int, unsigned int);
+void ctrl_c_handler(int);
+void remove_comment(char *);
 
-/*utils*/
-int parsecmd(char *);
-void exe_cmd(char **, int);
+/* token3 */
+int parse_command(char *);
+void execute_command(char **, int);
 char *check_path(char *);
-void (*get_fun(char *))(char **);
-char *getenv(char *);
+void (*get_func(char *))(char **);
+char *_getenv(char *);
 
-/*built*/
-void envi(char **);
-void exit(char **);
-/*main*/
-extern void noninteract(void);
-extern void initializer(char **curr_cmd, int type_cmd);
-#endif
+/* Built*/
+void env(char **);
+void quit(char **);
+
+/* Main */
+void non_interactive(void);
+void initializer(char **, int);
+
+#endif /* SHELL_H */
 
