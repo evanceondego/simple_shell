@@ -1,45 +1,45 @@
 #include "shell.h"
 
-/**
- * Description-the extended functions for main.c
+/** parse_command - determines the type of the command
+ * @command: command to be parsed
+ *
+ * Return: constant representing the type of the command
+ * Description -
+ * 		 EXTERNAL_COMMAND (1) represents commands like /bin/ls
+ *		 INTERNAL_COMMAND (2) represents commands like exit, env
+ *		 PATH_COMMAND (3) represents commands found in the PATH like ls
+ *		 INVALID_COMMAND (-1) represents invalid commands
  */
 
-
-/**
- * parse_cmd - this finds the type of command
- *@cmd -determne the command to be parsed
- * Return: command type
- */
-
-int parse_cmd(char *cmd)
+int parse_command(char *command)
 {
-	int a;
-	char *int_cmd_2[] = {"envi", "exit", NULL};
+	int i;
+	char *internal_command[] = {"env", "exit", NULL};
 	char *path = NULL;
 
-	for (a = 0; cmd[a] != '\0'; a++)
+	for (i = 0; command[i] != '\0'; i++)
 	{
-		if (cmd[a] == '/')
-			return (EXTE_CMD_1);
+		if (command[i] == '/')
+			return (EXTERNAL_COMMAND);
 	}
-	for (a = 0; *int_cmd_2[a] != NULL; a++)
+	for (i = 0; internal_command[i] != NULL; i++)
 	{
-		if (_strcmp(cmd, *int_cmd_2[a]) == 0)
-			return (INT_CMD_2);
+		if (_strcmp(command, internal_command[i]) == 0)
+			return (INTERNAL_COMMAND);
 	}
-	/* @checkpath - checks if a command is found in the PATH */
-	path = checkpath(cmd);
+	/* @check_path - checks if a command is found in the PATH */
+	path = check_path(command);
 	if (path != NULL)
 	{
 		free(path);
-		return (PATH_CMD);
+		return (PATH_COMMAND);
 	}
 
-	return (INV_CMD_1);
+	return (INVALID_COMMAND);
 }
 
 /**
- * execute_command - executes a command based on it's type
+ * execute_command - executes a command based on its type
  * @tokenized_command: tokenized form of the command (ls -l == {ls, -l, NULL})
  * @command_type: type of the command
  *
@@ -49,7 +49,7 @@ void execute_command(char **tokenized_command, int command_type)
 {
 	void (*func)(char **command);
 
-	if (command_type == EXTE_CMD_1)
+	if (command_type == EXTERNAL_COMMAND)
 	{
 		if (execve(tokenized_command[0], tokenized_command, NULL) == -1)
 		{
@@ -57,7 +57,7 @@ void execute_command(char **tokenized_command, int command_type)
 			exit(2);
 		}
 	}
-	if (command_type == PATH_CMD_3)
+	if (command_type == PATH_COMMAND)
 	{
 		if (execve(check_path(tokenized_command[0]), tokenized_command, NULL) == -1)
 		{
@@ -65,14 +65,14 @@ void execute_command(char **tokenized_command, int command_type)
 			exit(2);
 		}
 	}
-	if (command_type == INT_CMD_2)
+	if (command_type == INTERNAL_COMMAND)
 	{
-		func = getfunc(tokenized_command[0]);
+		func = get_func(tokenized_command[0]);
 		func(tokenized_command);
 	}
-	if (command_type == INV_CMD_1)
+	if (command_type == INVALID_COMMAND)
 	{
-		print(shell_, STDERR_FILENO);
+		print(shell_name, STDERR_FILENO);
 		print(": 1: ", STDERR_FILENO);
 		print(tokenized_command[0], STDERR_FILENO);
 		print(": not found\n", STDERR_FILENO);
@@ -81,85 +81,29 @@ void execute_command(char **tokenized_command, int command_type)
 }
 
 /**
- * checkpath - checks if a command is found in the PATH
- * @cmd: command to be used
+ * check_path - checks if a command is found in the PATH
+ * @command: command to be used
  *
- * Return: path where the command
+ * Return: path where the command is found, NULL if not found
  */
-char *checkpath(char *cmd)
+char *check_path(char *command)
 {
-	char **patharray = NULL;
+	char **path_array = NULL;
 	char *temp, *temp2, *path_cpy;
-	char *path = getenv("PATH");
-	int a;
+	char *path = _getenv("PATH");
+	int i;
 
 	if (path == NULL || _strlen(path) == 0)
 		return (NULL);
-	pathcpy = malloc(sizeof(*path_cpy) * (strlen(path) + 1));
-	strcpy(path, path_cpy);
+	path_cpy = malloc(sizeof(*path_cpy) * (_strlen(path) + 1));
+	_strcpy(path, path_cpy);
 	path_array = tokenizer(path_cpy, ":");
-	for (a = 0; path_array[a] != NULL; a++)
+	for (i = 0; path_array[i] != NULL; i++)
 	{
-		temp2 = astrcat(path_array[a], "/");
-		temp = astrcat(temp2, command);
+		temp2 = _strcat(path_array[i], "/");
+		temp = _strcat(temp2, command);
 		if (access(temp, F_OK) == 0)
 		{
 			free(temp2);
-			free(patharray);
-			free(pathcpy);
-			return (temp);
-		}
-		free(temp);
-		free(temp2);
-	}
-	free(pathcpy);
-	free(patharray);
-	return (NULL);
-}
+			free
 
-/**
- * getfunc - retrieves a function based on the command given and a mapping
- * @cmd: string to check against the mapping
- *
- * Return: pointer to the proper function, or null on fail
- */
-void (*getfunc(char *cmd))(char **)
-{
-	int a;
-	function_map mapping[] = {
-		{"envi", envi}, {"exit", quit}
-	};
-
-	for (a = 0; a < 2; a++)
-	{
-		if (strcmp(command, mapping[a].command_name) == 0)
-			return (mapping[a].func);
-	}
-	return (NULL);
-}
-
-/**
- * getenv - gets the value of an environment
- * @name: name of the environment variable
- *
- * Return: the value of the variable as a string
- */
-char *getenv(char *name)
-{
-	char **myenviron;
-	char *pairptr;
-	char *namecpy;
-
-	for (myenviron = environ; *myenviron != NULL; myenviron++)
-	{
-		for (pairptr = *myenviron, namecpy = name;
-		     *pairptr == *namecpy; pairptr++, namecpy++)
-		{
-			if (*pairptr == '=')
-				break;
-		}
-		if ((*pairptr == '=') && (*namecpy == '\0'))
-			return (pairptr + 1);
-	}
-	return (NULL);
-}
