@@ -15,7 +15,6 @@ int main(int argc __attribute__((unused)), char **argv)
 {
 	char **commands = NULL;
 	char *line = NULL;
-	char *shell_name = argv[0];
 	int status = 0;
 
 	signal(SIGINT, ctrl_c_handler);

@@ -1,16 +1,10 @@
 #include "shell.h"
 
-/**
- * parse_command - determines the type of the command
- * @command: command to be parsed
- *
- * Return: constant representing the type of the command
- * Description -
- * EXTERNAL_COMMAND (1) represents commands like /bin/ls
- * INTERNAL_COMMAND (2) represents commands like exit, env
- * PATH_COMMAND (3) represents commands found in the PATH like ls
- * INVALID_COMMAND (-1) represents invalid commands
- */
+int parse_command(char *command);
+void execute_command(char **tokenized_command, int command_type);
+char *check_path(char *command);
+void (*get_func(char *command))(char **);
+char *_getenv(char *name);
 
 int parse_command(char *command)
 {
@@ -28,7 +22,6 @@ int parse_command(char *command)
 		if (_strcmp(command, internal_command[i]) == 0)
 			return (INTERNAL_COMMAND);
 	}
-	/* @check_path - checks if a command is found in the PATH */
 	path = check_path(command);
 	if (path != NULL)
 	{
@@ -39,13 +32,6 @@ int parse_command(char *command)
 	return (INVALID_COMMAND);
 }
 
-/**
- * execute_command - executes a command based on its type
- * @tokenized_command: tokenized form of the command (ls -l == {ls, -l, NULL})
- * @command_type: type of the command
- *
- * Return: void
- */
 void execute_command(char **tokenized_command, int command_type)
 {
 	void (*func)(char **command);
@@ -81,12 +67,6 @@ void execute_command(char **tokenized_command, int command_type)
 	}
 }
 
-/**
- * check_path - checks if a command is found in the PATH
- * @command: command to be used
- *
- * Return: path where the command is found, NULL if not found
- */
 char *check_path(char *command)
 {
 	char **path_array = NULL;
@@ -106,5 +86,94 @@ char *check_path(char *command)
 		if (access(temp, F_OK) == 0)
 		{
 			free(temp2);
-			free
+			free(path_array);
+			free(path_cpy);
+			return (temp);
+		}
+		free(temp);
+		free(temp2);
+	}
+	free(path_cpy);
+	free(path_array);
+	return (NULL);
+}
 
+void (*get_func(char *command))(char **)
+{
+	int i;
+	function_map mapping[] = {
+		{"env", env}, {"exit", quit}
+	};
+
+	for (i = 0; i < 2; i++)
+	{
+		if (_strcmp(command, mapping[i].command_name) == 0)
+			return (mapping[i].func);
+	}
+	return (NULL);
+}
+
+char *_getenv(char *name)
+{
+	char **my_environ;
+	char *pair_ptr;
+	char *name_cpy;
+
+	for (my_environ = environ; *my_environ != NULL; my_environ++)
+	{
+		for (pair_ptr = *my_environ, name_cpy = name;
+		     *pair_ptr == *name_cpy; pair_ptr++, name_cpy++)
+		{
+			if (*pair_ptr == '=')
+				break;
+		}
+		if ((*pair_ptr == '=') && (*name_cpy == '\0'))
+			return (pair_ptr + 1);
+	}
+	return (NULL);
+}
+/* Declaration or Statement */
+int main(int argc __attribute__((unused)), char **argv)
+{
+	char **commands = NULL;
+	char *line = NULL;
+	char *shell_name = NULL;
+	int status = 0;
+
+	char **current_command = NULL;
+	int i, type_command = 0;
+	size_t n = 0;
+
+	signal(SIGINT, ctrl_c_handler);
+	shell_name = argv[0];
+	while (1)
+	{
+		non_interactive();
+		print(" ($) ", STDOUT_FILENO);
+		if (getline(&line, &n, stdin) == -1)
+		{
+			free(line);
+			exit(status);
+		}
+		remove_newline(line);
+		remove_comment(line);
+		commands = tokenizer(line, ";");
+
+		for (i = 0; commands[i] != NULL; i++)
+		{
+			current_command = tokenizer(commands[i], " ");
+			if (current_command[0] == NULL)
+			{
+				free(current_command);
+				break;
+			}
+			type_command = parse_command(current_command[0]);
+
+			initializer(current_command, type_command);
+			free(current_command);
+		}
+		free(commands);
+	}
+	free(line);
+	return (status);
+}
